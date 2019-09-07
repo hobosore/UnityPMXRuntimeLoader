@@ -1,6 +1,8 @@
 # UnityPMXImporter
  
  pmxファイル(mmdのモデルファイル)をUnityに直接（変換なしに、動的に、スクリプトから）読み込むためのコード
+ PMXModelLoader.LoadPMXModel(string path)
+ でモデルを読み込めます。
  
  
 使用に特に制限は設けませんが、公序良俗の範囲でお願いします。  
