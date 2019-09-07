@@ -228,7 +228,7 @@ namespace LibMMD.Unity3D
             for (var i = 0; i < model.Parts.Length; i++)
             {
                 ret[i] = materialLoader.LoadMaterial(model.Parts[i].Material, config);
-                ret[i].name = i.ToString();
+                ret[i].name = model.Parts[i].Material.Name;
             }
             return ret;
         }
