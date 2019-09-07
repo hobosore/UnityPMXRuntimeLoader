@@ -127,7 +127,7 @@ namespace LibMMD.Unity3D
         public SkinnedMeshRenderer SkinnedMeshRenderer { get; private set; } = new SkinnedMeshRenderer();
         public Mesh Mesh { get; private set; }
         public UnityEngine.Material[] Materials { get; private set; } = new UnityEngine.Material[] { };
-
+        public List<string> MaterialMorphNames { get; private set; } = new List<string>();
 
         public Dictionary<Transform, int> OriginalBone_IndexDictionary { get; private set; }
             = new Dictionary<Transform, int>();
@@ -185,6 +185,7 @@ namespace LibMMD.Unity3D
                 Mesh = mesh;
 
                 await AttachVertexMorph(mesh);
+                await SearchForMaterialMorph();
 
                 Utils.ClearAllTransformChild(transform);
                 (GameObject rootObj, Transform[] bones) = CreateBones(model: RawMMDModel, parentOfAll: gameObject);
@@ -199,7 +200,11 @@ namespace LibMMD.Unity3D
                 Materials = LoadModelMaterials(materialLoader, new MMDUnityConfig(), RawMMDModel);
                 ReorderRender(Materials);
 
-                BuildBindpose(Mesh, bones, SkinnedMeshRenderer, true);
+                SkinnedMeshRenderer.sharedMesh = mesh;
+                BuildBindpose(Mesh, bones, SkinnedMeshRenderer);
+                SkinnedMeshRenderer.materials = Materials;
+
+                MaterialMorphRemover.HideMaterialMorphs(this);
 
                 AttachPhysicComponents(bones, this);
             }
@@ -443,6 +448,20 @@ namespace LibMMD.Unity3D
             blendShapes.ForEach(x => mesh.AddBlendShapeFrame(x.name, 100f, x.offsets, x.normals, null));
         }
 
+        private async Task SearchForMaterialMorph()
+        {
+            await Task.Run(() =>
+            {
+                foreach (Morph morph in RawMMDModel.Morphs)
+                {
+                    if (morph.Type == Morph.MorphType.MorphTypeMaterial)
+                    {
+                        MaterialMorphNames.Add(morph.Name);
+                    }
+                }
+            });
+        }
+
         private (GameObject rootObj, Transform[] bones) CreateBones(RawMMDModel model, GameObject parentOfAll)
         {
             if (model == null)
@@ -524,16 +543,11 @@ namespace LibMMD.Unity3D
             return ret;
         }
 
-        private void BuildBindpose(Mesh mesh, Transform[] bones, SkinnedMeshRenderer meshRenderer, bool fillMaterials)
+        private void BuildBindpose(Mesh mesh, Transform[] bones, SkinnedMeshRenderer meshRenderer)
         {
             Matrix4x4[] bindposes = bones.Select(x => x.worldToLocalMatrix).ToArray();
             mesh.bindposes = bindposes;
-            meshRenderer.sharedMesh = mesh;
             meshRenderer.bones = bones;
-            if (fillMaterials)
-            {
-                meshRenderer.materials = Materials;
-            }
         }
 
         private int GetRelBoneIndexFromNearbyRigidbody(int rigidbodyIndex)
