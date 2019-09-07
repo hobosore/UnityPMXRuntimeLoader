@@ -51,14 +51,22 @@ public class PMXModelLoader
         catch (Exception ex)
         {
             UnityEngine.Debug.Log("アバターの作成に失敗しました");
+            UnityEngine.Debug.Log(path);
 
-#if UNITY_EDITOR
-            GameObject.DestroyImmediate(mmdModel.gameObject);
-#else
-        GameObject.Destroy(mmdModel.gameObject);
-#endif
+            AvatarMaker avaterMaker = mmdModel.gameObject.GetComponent<AvatarMaker>();
+            #if UNITY_EDITOR
+                        if (avaterMaker != null)
+                        {
+                            GameObject.DestroyImmediate(avaterMaker);
+                        }
+            #else
+                        if (avaterMaker != null)
+                        {
+                            GameObject.Destroy(avaterMaker);
+                        }
+            #endif
 
-            return null;
+            return mmdModel.transform;
         }
         
         return mmdModel.transform;
