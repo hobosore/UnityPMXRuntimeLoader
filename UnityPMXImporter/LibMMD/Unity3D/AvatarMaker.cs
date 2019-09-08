@@ -121,6 +121,7 @@ namespace LibMMD.Unity3D
             }
             animator = gameObject.AddComponent<Animator>();
             animator.avatar = avatar;
+            animator.applyRootMotion = true;
             animator.runtimeAnimatorController = RuntimeAnimatorController;
             return true;
         }
