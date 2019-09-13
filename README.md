@@ -11,6 +11,7 @@
 また、このコードを使用して生じた問題について制作者は責任を負いません。  
 答えられるかはわかりませんが、不具合や要望があれば遠慮なくご連絡ください。  
   
+  **MIT License**
   
 Hobosore@hobosore  
 hobosore@gmail.com  
